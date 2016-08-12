@@ -185,6 +185,3 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 			if snode_photo_url:
 				tripadvisor_photo_item['url'] = snode_photo_url
 				tripadvisor_item['photos'].append(tripadvisor_photo_item)
-
-
-"ta.trackEventOnPage('Eatery_Listing', 'Email', 2165918, 1);\n                           return ta.call('ta.locationDetail.checkEmailAction',event,this,'pffriends@gmail.com',\n                                  2165918,\n                                  '\\x41\\x6e\\x20\\x69\\x6e\\x71\\x75\\x69\\x72\\x79\\x20\\x66\\x72\\x6f\\x6d\\x20\\x61\\x20\\x54\\x72\\x69\\x70\\x41\\x64\\x76\\x69\\x73\\x6f\\x72\\x20\\x75\\x73\\x65\\x72\\x20\\x66\\x6f\\x72\\x20\\x50\\x61\\x74\\x7a\\x65\\x72\\x69\\x61\\x20\\x46\\x61\\x6d\\x69\\x6c\\x79\\x20\\x26\\x61\\x6d\\x70\\x3b\\x20\\x46\\x72\\x69\\x65\\x6e\\x64\\x73',                                   'Restaurant_Url_');"
