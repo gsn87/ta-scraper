@@ -24,7 +24,7 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 	allowed_domains = ["tripadvisor.com"]
 	base_uri = "http://www.tripadvisor.com"
 	start_urls = [
-		base_uri + "/RestaurantSearch?Action=PAGE&geo=187147&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true"
+		base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true"
 	    # base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=9900&sortOrder=popularity&o=a0&availSearchEnabled=true"
 	]
 
