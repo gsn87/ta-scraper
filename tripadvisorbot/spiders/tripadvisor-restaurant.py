@@ -24,24 +24,24 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 	allowed_domains = ["tripadvisor.com"]
 	base_uri = "http://www.tripadvisor.com"
 	start_urls = [
-		base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true"
-	    # base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=9900&sortOrder=popularity&o=a0&availSearchEnabled=true"
+		# base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true"
+	    base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true&o=a660"
 	]
 
 
-	def parse(self, response):
-		sel = Selector(response)
-		# last_page = int(sel.xpath('//div[@class="pageNumbers"]/a[position()=last()]/text()').extract())
-		last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
-		for i in range(last_page):
-			id_page = str(i*30)
-			url = response.url + '&o=a'+id_page
-			print('*******************************', url)
-			yield Request(url=url, callback=self.parse_result)
+	# def parse(self, response):
+	# 	sel = Selector(response)
+	# 	# last_page = int(sel.xpath('//div[@class="pageNumbers"]/a[position()=last()]/text()').extract())
+	# 	last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
+	# 	for i in range(last_page):
+	# 		id_page = str(i*30)
+	# 		url = response.url + '&o=a'+id_page
+	# 		print('*******************************', url)
+	# 		yield Request(url=url, callback=self.parse_result)
 
 	# Entry point for BaseSpider.
 	# Page type: /RestaurantSearch
-	def parse_result(self, response):
+	def parse(self, response):
 		tripadvisor_items = []
 
 		sel = Selector(response)
@@ -56,14 +56,15 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 			tripadvisor_item = TripAdvisorItem()
 			# snode_restaurant.extract()
 			# tripadvisor_item['url'] = self.base_uri + clean_parsed_string(get_parsed_string(snode_restaurant, 'div[@class="shortSellDetails"]/h3/a[@class="property_title"]/@href'))
-			tripadvisor_item['url'] = self.base_uri + clean_parsed_string(get_parsed_string(snode_restaurant, 'div[@class="shortSellDetails"]/h3/a[@class="property_title"]/@href'))
-
-			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_restaurant, 'div[@class="shortSellDetails"]/h3/a[@class="property_title"]/text()'))
+			tripadvisor_item['url'] = self.base_uri + clean_parsed_string(get_parsed_string(snode_restaurant, 'div[starts-with(@class,"shortSellDetails")]/h3[@class="title"]/a[@class="property_title"]/@href'))
+			tripadvisor_item['url'] = 'https://www.tripadvisor.com/Restaurant_Review-g187265-d6557654-Reviews-Bar_Restaurant_FLORA-Lyon_Rhone_Rhone_Alpes.html'
+			print('**************'+tripadvisor_item['url'])
+			tripadvisor_item['name'] = clean_parsed_string(get_parsed_string(snode_restaurant, 'div[starts-with(@class,"shortSellDetails")]/h3[@class="title"]/a[@class="property_title"]/text()'))
 			
 			# Cleaning string and taking only the first part before whitespace.
 
 			# snode_restaurant_item_avg_stars = clean_parsed_string(get_parsed_string(snode_restaurant, 'div[@class="shortSellDetails"]/div[@class="rating"]/span[starts-with(@class, "rate")]/img[@class="sprite-ratings"]/@alt'))
-			snode_restaurant_item_avg_stars = '4.5 of 5 stars'
+			snode_restaurant_item_avg_stars = '0 of 5 stars'
 			tripadvisor_item['avg_stars'] = re.match(r'(\S+)', snode_restaurant_item_avg_stars).group()
 
 			# Popolate reviews and address for current item.
@@ -84,12 +85,16 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 		tripadvisor_address_item = TripAdvisorAddressItem()
 
 		tripadvisor_address_item['street'] = clean_parsed_string(get_parsed_string(snode_address, 'address/span/span[@class="format_address"]/span[@class="street-address"]/text()'))
+		print('**************'+tripadvisor_address_item['street'])
 
 		snode_address_postal_code = clean_parsed_string(get_parsed_string(snode_address, 'address/span/span[@class="format_address"]/span[@class="locality"]/span[@property="postalCode"]/text()'))
+		print('**************'+snode_address_postal_code)
 		if snode_address_postal_code:
 			tripadvisor_address_item['postal_code'] = snode_address_postal_code
 
 		snode_address_locality = clean_parsed_string(get_parsed_string(snode_address, 'address/span/span[@class="format_address"]/span[@class="locality"]/span[@property="addressLocality"]/text()'))
+		print('**************'+snode_address_locality)
+
 		if snode_address_locality:
 			tripadvisor_address_item['locality'] = snode_address_locality
 
