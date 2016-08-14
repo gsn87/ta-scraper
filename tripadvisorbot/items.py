@@ -16,20 +16,22 @@ class GlobalItem(Item):
 
 class TripAdvisorItem(Item):
 
-	url = Field()
 	name = Field()
 	address = Field()
-	avg_stars = Field()
-	photos = Field()
-	reviews = Field()
+	url = Field()
+	# avg_stars = Field()
+	# photos = Field()
+	# reviews = Field()
 
 class TripAdvisorAddressItem(Item):
 
 	street = Field()
 	postal_code = Field()
 	locality = Field()
-	country = Field()
+	# country = Field()
+	phone = Field()
 	email = Field()
+	website = Field()
 
 class TripAdvisorPhotoItem(Item):
 	# URL to image.
