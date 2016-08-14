@@ -24,17 +24,40 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 	allowed_domains = ["tripadvisor.com"]
 	base_uri = "https://www.tripadvisor.com"
 	start_urls = [
-		base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true"
-	    # base_uri + "/RestaurantSearch?Action=PAGE&geo=187265&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true&o=a660"
+		base_uri + "/RestaurantSearch?Action=PAGE&geo=187070&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true",
 	]
 
 	# Building index urls for this location
 	def parse(self, response):
+
 		sel = Selector(response)
 		last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
 		for i in range(last_page):
-			id_page = str(i*30)
+			id_page = str(i*20)
 			url = response.url + '&o=a'+id_page
+			print('*******************************', url)
+			yield Request(url=url, callback=self.parse_geo)
+
+	def parse_geo(self, response):
+		sel = Selector(response)
+		cities = sel.xpath('//div[@id="EATERY_SEARCH_RESULTS"]/div[starts-with(@class, "listing")]')
+
+		for city in cities:
+			geo_id = split_geo(clean_parsed_string(get_parsed_string(city, 'div[starts-with(@class,"shortSellDetails")]/h3[@class="title"]/a[@class="property_title"]/@onclick')))
+			geo_url = "https://www.tripadvisor.com" + "/RestaurantSearch?Action=PAGE&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true" + "&geo="+ geo_id
+			yield Request(url=geo_url, callback=self.parse_restaurant)
+
+	def parse_restaurant(self, response):
+		sel = Selector(response)
+		last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
+		if last_page:
+			for i in range(last_page):
+				id_page = str(i*30)
+				url = response.url + '&o=a'+id_page
+				print('*******************************', url)
+				yield Request(url=url, callback=self.parse_result)
+		else:
+			url = response.url
 			print('*******************************', url)
 			yield Request(url=url, callback=self.parse_result)
 

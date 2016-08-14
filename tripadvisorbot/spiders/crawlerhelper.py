@@ -37,3 +37,9 @@ def split_mail(str):
 	except:
 		return 'none'
 
+def split_geo(str):
+	str2 = str.replace("'", "")
+	geo = str2.split(",")[-3]
+	return geo
+
+
