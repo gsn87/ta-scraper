@@ -18,6 +18,7 @@ GEO = {"Paris": 187147, "Lyon": 187265}
 CAT = {"Coffee": 9900, "Restaurant": 10591, "Dessert": 9909, "Bakery": 9901, "Bars": 11776}
 
 
+
 class TripAdvisorRestaurantBaseSpider(BaseSpider):
 	name = "tripadvisor-restaurant"
 
@@ -27,16 +28,25 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 		base_uri + "/RestaurantSearch?Action=PAGE&geo=187070&ajax=1&itags=10591&sortOrder=popularity&availSearchEnabled=true",
 	]
 
+	# Log Error
+	logf = open("error.log", "w")
+
 	# Building index urls for this location
 	def parse(self, response):
 
 		sel = Selector(response)
-		last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
-		for i in range(last_page):
-			id_page = str(i*20)
-			url = response.url + '&o=a'+id_page
-			print('*******************************', url)
-			yield Request(url=url, callback=self.parse_geo)
+		try:
+			last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
+		except:
+			last_page = False
+			self.logf.write("Failed to crawl " + str(response.url) + '\n')
+			pass
+		if last_page:
+			for i in range(last_page):
+				id_page = str(i*20)
+				url = response.url + '&o=a'+id_page
+				print('*******************************', url)
+				yield Request(url=url, callback=self.parse_geo)
 
 	def parse_geo(self, response):
 		sel = Selector(response)
@@ -49,7 +59,12 @@ class TripAdvisorRestaurantBaseSpider(BaseSpider):
 
 	def parse_restaurant(self, response):
 		sel = Selector(response)
-		last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
+		try:
+			last_page = int(clean_parsed_string(get_parsed_string(sel.xpath('//div[@class="pageNumbers"]'), 'a[position()=last()]/text()')))
+		except:
+			last_page = False
+			self.logf.write("Failed to crawl " + str(response.url) + '\n')
+			pass
 		if last_page:
 			for i in range(last_page):
 				id_page = str(i*30)
